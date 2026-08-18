@@ -115,9 +115,11 @@ Blend and Output FFB in 1% or 10% steps, without taking your hands off the wheel
 
 | Document | |
 |---|---|
+| [Manual](docs/manual.md) | Every effect and every setting, in detail |
 | [Terms of use](docs/terms.md) | The agreement shown on first run |
 | [Before you start](docs/before-you-start.md) | Turning RaceRoom's FFB off |
 | [About](docs/about.md) | Who is behind this |
+| [Changelog](CHANGELOG.md) | What changed in each version |
 | [Licence](LICENSE) | Free, proprietary, non-commercial |
 | [Third-party notices](THIRD-PARTY-NOTICES.md) | Bundled components |
 
