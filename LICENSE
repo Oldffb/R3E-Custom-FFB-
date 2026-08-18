@@ -1,0 +1,66 @@
+R3E Custom FFB — End User License Agreement
+Copyright (c) 2026 Oldffb. All rights reserved.
+
+This is proprietary software. It is provided free of charge, but it is NOT open
+source and it is NOT in the public domain.
+
+1. GRANT OF LICENSE
+   You are granted a personal, non-exclusive, non-transferable, revocable licence
+   to install and use this application, on any number of computers you own or
+   control, at no cost, for personal and non-commercial purposes.
+
+2. RESTRICTIONS
+   You may not:
+   (a) sell, rent, lease, sublicense or charge any fee for access to the software;
+   (b) modify, adapt or create derivative works from it;
+   (c) reverse engineer, decompile or disassemble it, except to the extent such
+       restriction is prohibited by applicable law — in the European Union,
+       Directive 2009/24/EC permits decompilation for interoperability purposes;
+   (d) remove or alter any copyright, trademark or authorship notice.
+
+3. REDISTRIBUTION
+   You may redistribute the official release package, UNMODIFIED and in its
+   entirety, provided it is offered free of charge and this licence is included.
+   Any other redistribution requires prior written permission.
+
+4. OWNERSHIP
+   The author retains all right, title and interest in the software. This licence
+   grants you the right to use it and nothing more.
+
+5. YOUR DATA
+   Configuration files, profiles and logs you create belong to you. The software
+   stores them locally on your computer and does not transmit them anywhere.
+
+6. THIRD-PARTY COMPONENTS
+   The software includes components licensed by third parties. See
+   THIRD-PARTY-NOTICES.md. Those components remain under their own licences.
+
+7. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. Some
+   jurisdictions do not allow the exclusion of implied warranties, so this
+   exclusion may not apply to you.
+
+8. LIMITATION OF LIABILITY
+   To the maximum extent permitted by applicable law, the author shall not be
+   liable for any indirect, incidental, special or consequential damages, loss of
+   data, or damage to hardware arising from the use of this software. Nothing in
+   this licence excludes or limits liability for death or personal injury caused
+   by negligence, for fraud, or for any other liability that cannot be excluded
+   under applicable law.
+
+9. SAFETY
+   This software controls force feedback hardware capable of producing enough
+   torque to cause injury. Use it only as described in the accompanying safety
+   notice. Never run it with the wheelbase unsecured.
+
+10. TERMINATION
+    This licence terminates automatically if you breach any of its terms. On
+    termination you must stop using the software and delete all copies.
+
+11. NOT AFFILIATED
+    This is an independent, non-commercial project. It is not affiliated with,
+    sponsored by, or endorsed by KW Studios, Sector3 Studios or RaceRoom Racing
+    Experience, nor by any wheelbase manufacturer. All trademarks are the
+    property of their respective owners.

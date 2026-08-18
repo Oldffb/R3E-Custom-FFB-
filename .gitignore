@@ -1,0 +1,3 @@
+# Pacotes de release nao vao no repositorio — sobem como asset de Release,
+# senao o historico do git cresce dezenas de MB a cada versao.
+*.zip
