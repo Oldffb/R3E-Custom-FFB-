@@ -64,12 +64,14 @@ are the fields the effects actually consume:
 |---|---|---|
 | `VelocityKmh` | km/h | speed fades in almost every effect |
 | `AccelX` | m/s² | lateral G, self-aligning torque |
+| `AccelY` | m/s² | vertical G |
 | `AccelZ` | m/s² | weight transfer (deceleration gate) |
 | `SteeringAngle` | rad | SAT modulation, weight transfer, downforce |
-| `OrientRoll` | rad | banking removal |
+| `OrientRoll` | rad | banking removal (lateral) |
+| `OrientPitch` | rad | road gradient removal (longitudinal) |
 | `ChassisSlipAngleDeg` | deg | SAT pneumatic trail |
 | `YawRate` | rad/s | understeer, oversteer, gyroscopic |
-| `GripFrontAvg` / `GripRearAvg` | 0–1 | understeer / oversteer |
+| `TireGripFL…RR` | 0–1 (−1 = N/A) | understeer / oversteer, via the axle averages |
 | `TireRpsFL…RR` | rad/s | gyroscopic, oversteer |
 | `TireLoadFL…RR` | N | front load ratio |
 | `SuspVelFL…RR` | m/s | suspension bands |
@@ -97,26 +99,82 @@ usNorm   = yawDelta / UsYawFullscale
 GT3 and a formula car feel comparable at the same Mix: the reference changes, not
 the formula.
 
-**Pre-filtering.** Some signals are cleaned before use, and the pipeline keeps
-both versions because different effects want different things:
+**Derived quantities.** Several names in the formulas below are not telemetry
+fields — they are computed first. Every one of them is defined here, so no formula
+depends on something unexplained.
 
 ```
-AccelXClean = lowPass(AccelX, 8 Hz)          # bump rejection, banking kept
-AccelXNet   = AccelXClean − banking gravity  # banking removed
-AccelZClean = lowPass(AccelZ, 10 Hz)         # positive = braking
+# ── the two accelerometer versions ────────────────────────────────────────
+AccelXClean = AccelX          # currently passed through unfiltered
+AccelZClean = AccelZ          # (the low-pass exists in the code but is disabled)
+
+# ── banking removal, used by self-aligning torque ─────────────────────────
+rollFiltered = OrientRoll                        if latency mode = LowLatency
+             = lowPass(OrientRoll, bankingLpHz)  otherwise
+bankRoll     = |rollFiltered| > 0.05 rad ? rollFiltered : 0      # ~3° deadzone
+
+AccelXNet = sign(AccelXClean) × ( |AccelXClean| × cos(bankRoll)
+                                  − 9.81 × |sin(bankRoll)| )
+
+# ── road gradient removal, longitudinal ───────────────────────────────────
+pitchFiltered = lowPass(OrientPitch, 10 Hz)
+AccelZNet     = AccelZClean − 9.81 × sin(pitchFiltered)
+
+# ── front load share, used by self-aligning torque ────────────────────────
+fzFront        = TireLoadFL + TireLoadFR
+fzTotal        = fzFront + TireLoadRL + TireLoadRR
+FrontLoadRatio = fzTotal > 10 N ? fzFront / fzTotal : 0.5     # 0.5 = fallback
+
+# ── axle grip, used by understeer and oversteer ───────────────────────────
+GripFL…RR    = TireGripFL…RR < 0 ? 1.0 : clamp(TireGripFL…RR, 0, 1.5)   # −1 = N/A
+GripFrontAvg = (GripFL + GripFR) / 2
+GripRearAvg  = (GripRL + GripRR) / 2
+
+# ── misc ──────────────────────────────────────────────────────────────────
+velMs   = VelocityKmh / 3.6
+slipMag = |ChassisSlipAngleDeg|
 ```
 
-The distinction is deliberate: lateral G uses `AccelXClean` **with** banking,
-because the driver already feels banking relief through `g·sin(roll)` and removing
-it would double-count. Self-aligning torque uses `AccelXNet`, **without** banking,
-because it models tyre force.
+Three of these deserve a note.
 
-**Derived quantities:**
+**The banking correction is not a plain subtraction.** An earlier version used
+`AccelXClean − 9.81·sin(roll)`, which on banked ovals *added* to the signal instead
+of removing gravity, because the sign was inverted — it inflated the self-aligning
+torque exactly where it should have reduced it. The current form works on
+magnitudes and reapplies the original sign, with a ~3° deadzone so that flat track
+noise does not trigger a correction at all.
 
-```
-FrontLoadRatio = fzFront / fzTotal           # from the four tyre loads
-velMs          = VelocityKmh / 3.6
-```
+**`FrontLoadRatio` has a guard.** Below 10 N of total load the car is not really on
+the ground, and dividing would produce nonsense, so it falls back to 0.5 — an even
+front/rear split.
+
+**Grip uses −1 as "not available"**, which is why the normalisation maps negatives
+to `1.0` (full grip) rather than clamping them to zero. A car that does not publish
+grip therefore reads as *gripping*, never as *sliding* — the safe direction, since
+understeer and oversteer both key off grip *loss*.
+
+**Which version of AccelX each effect uses is deliberate.** Lateral G uses
+`AccelXClean`, **keeping** banking, because the driver already feels banking relief
+through `g·sin(roll)` and removing it would double-count. Self-aligning torque uses
+`AccelXNet`, **without** banking, because it models tyre force.
+
+### The latency modes, and the α in the formulas
+
+Several formulas below contain a first-order filter written as
+`state += α × (input − state)`. That α is not fixed — it comes from the latency
+mode, expressed as a **budget of frames of delay**:
+
+| Mode | Budget | α |
+|---|---|---|
+| Low Latency | 0 frames | 1.000 — pass-through, same frame |
+| Direct | 3 frames | 0.250 |
+| Medium | 4 frames | 0.200 |
+| Smooth | 5 frames | 0.167 |
+
+Each effect declares its **natural** filter length, and the resolver takes
+`min(natural, budget)` — so a filter already faster than the budget is left alone,
+and the mode only ever makes things quicker, never slower than designed. Changing
+mode mid-session ramps α gradually, so there is no step in the force.
 
 ### Two clock rates
 
@@ -147,8 +205,8 @@ straighten the wheel:
 latForceNorm = AccelXNet / LatGRef
 
 # pneumatic trail: peaks at SlipPeak, decays linearly to zero at SlipDecay
-if      slip <= SlipPeak :  trailPneu = TrailPneu × (slip / SlipPeak)
-elif    slip <= SlipDecay:  trailPneu = TrailPneu × (1 − (slip − SlipPeak)
+if      slipMag <= SlipPeak :  trailPneu = TrailPneu × (slipMag / SlipPeak)
+elif    slipMag <= SlipDecay:  trailPneu = TrailPneu × (1 − (slipMag − SlipPeak)
                                                       / (SlipDecay − SlipPeak))
 else                     :  trailPneu = 0
 
@@ -236,8 +294,9 @@ pedalGate = clamp(BrakePedal / WtBrakeEps, 0, 1)
 speedFade = clamp((WtStandstillKmh − VelocityKmh) / WtStandstillKmh, 0, 1) × WtParkingScale
 
 gate     = max(decelMag × pedalGate, speedFade)
-rateEma += α × ((SteeringAngle − steerPrev) − rateEma)
-rateNorm = clamp(rateEma / WtSteerRateRef, −1, +1)
+steerPrev = SteeringAngle of the previous frame
+rateEma  += α × ((SteeringAngle − steerPrev) − rateEma)
+rateNorm  = clamp(rateEma / WtSteerRateRef, −1, +1)
 
 WT = −WtDamperGain × rateNorm × gate
 ```
@@ -265,7 +324,9 @@ Because aero is not grip, downforce is **not** killed by understeer — see Stag
 Both bands run the same eight steps over `SuspVel` from the four wheels:
 
 ```
-1. input      raw = (frontAvg + k × rearAvg) / (1 + k)      k = RearBlend% / 100
+1. input      frontAvg = (SuspVelFL + SuspVelFR) / 2
+              rearAvg  = (SuspVelRL + SuspVelRR) / 2
+              raw = (frontAvg + k × rearAvg) / (1 + k)      k = RearBlend% / 100
 2. bandpass   high-pass at FreqLo → low-pass at FreqHi
 3. normalise  x = clamp(bp / NormFs, −1, +1)
 4. deadzone   |x| < t → 0, else x = sign × (|x| − t) / (1 − t)
@@ -308,6 +369,7 @@ force.
 This is the last thing that happens to the effects, and it is not a plain sum:
 
 ```
+usMixed   = the understeer signal after Stage 3 (0…1)
 usFull    = max(0, 1 − usMixed)          # no floor: can reach exactly zero
 usFloored = max(UsFloor, usFull)         # with floor: never fully mutes
 
