@@ -41,8 +41,7 @@ Three consequences worth keeping in mind while reading the sections below:
 - **Linearity is applied before Mix**, so Mix changes how much you feel, never the
   character of the effect.
 
-📖 **[Full pipeline walkthrough with pseudo-code](how-it-works.md)** — every stage,
-the exact filter order, and the combination formula.
+📖 **[Full pipeline walkthrough with pseudo-code](how-it-works.md)** — every stage, the exact filter order, the combination formula, and the **exact formula of each effect** as implemented.
 
 ---
 
