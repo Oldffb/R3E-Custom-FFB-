@@ -6,9 +6,43 @@
 
 ## Contents
 
+- [How the FFB is built](#how-the-ffb-is-built)
 - [The effects](#the-effects)
 - [Settings](#settings)
 - [Where things are stored](#where-things-are-stored)
+
+---
+
+## How the FFB is built
+
+Before the individual descriptions, it helps to know **how the effects interact**,
+because two settings that look unrelated often affect each other.
+
+The order is: each effect is computed from telemetry, shaped by its own linearity
+and mix, and only then combined. The combination is not a plain sum —
+**understeer multiplies** the front-end group (self-aligning torque, lateral G,
+gyroscopic, oversteer), so they fade together as the front loses grip. Weight
+transfer is faded harder still, down to zero. Suspension and downforce stay
+outside that chain and are purely additive.
+
+Only after everything is combined does the output chain run:
+
+    equalizer -> slew limiter -> low-pass -> global linearity
+    -> clamp -> invert -> Output FFB scale
+
+This is why the equalizer cannot isolate a single effect: it acts on the sum. And
+why Output FFB is the right control for "too strong overall", but the wrong one
+for fixing the balance between effects.
+
+Three consequences worth keeping in mind while reading the sections below:
+
+- **Understeer is a global control.** Raising its Mix quietens four other effects.
+- **A quiet effect may not be its own fault** — understeer may be scaling it down.
+- **Linearity is applied before Mix**, so Mix changes how much you feel, never the
+  character of the effect.
+
+📖 **[Full pipeline walkthrough with pseudo-code](how-it-works.md)** — every stage,
+the exact filter order, and the combination formula.
 
 ---
 

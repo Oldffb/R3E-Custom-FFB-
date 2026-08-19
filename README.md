@@ -115,6 +115,7 @@ Blend and Output FFB in 1% or 10% steps, without taking your hands off the wheel
 
 | Document | |
 |---|---|
+| [How the FFB is built](docs/how-it-works.md) | Pipeline order, effect interaction and filter chain |
 | [Manual](docs/manual.md) | Every effect and every setting, in detail |
 | [Terms of use](docs/terms.md) | The agreement shown on first run |
 | [Before you start](docs/before-you-start.md) | Turning RaceRoom's FFB off |
