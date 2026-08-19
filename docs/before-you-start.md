@@ -35,3 +35,9 @@ Depois de fazer o ajuste, confirme no botão abaixo.
 
 ![RaceRoom — Force Feedback DESLIGADO (correto)](../img/raceroom-ffb-off.png)
 *✓ RaceRoom — Force Feedback DESLIGADO (correto)*
+
+---
+
+Wondering what the application touches on your system? See
+[What it touches](what-it-touches.md) — every file read or written, and why no
+RaceRoom file is ever modified.
