@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.22.0
+
+**Added**
+- **ABS vibration effect** — follows the simulator's own ABS signal, which pulses
+  at around 10 Hz on its own. Enable, working frequency (0-100 Hz) and amplitude;
+  no linearity, slew or damper, since the underlying signal is a simple on/off
+  flag. Ships **disabled**, Mix at 0.
+- Car database updated from the official source: **344 -> 356 cars**, **102 -> 105
+  classes**, including the DTM 2026 class and the Alpine A110 GT4+.
+- FFB profiles for 11 new cars.
+- Logger records traction control state, level, setting and the raw integer
+  values of the ABS and TC fields.
+
+**Fixed**
+- Profile warning was always shown in Portuguese, ignoring the selected language.
+- Overlay: the device name was replaced by "No device" whenever translations
+  refreshed, even with the wheel connected.
+
+**Known limitation**
+- A traction control effect is postponed: RaceRoom documents a "currently active"
+  state for TC but never publishes it. Verified with 6332 frames of full throttle
+  at maximum TC level.
+
 ## v0.21.5
 
 - Licence section added to the terms of use, naming the third-party components

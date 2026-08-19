@@ -2,7 +2,7 @@
 
 **Custom force feedback for RaceRoom Racing Experience.** Free, for Windows.
 
-[![Download](https://img.shields.io/badge/download-v0.21.5-brightgreen?style=for-the-badge)](../../releases/latest)
+[![Download](https://img.shields.io/badge/download-v0.22.0-brightgreen?style=for-the-badge)](../../releases/latest)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/JGypJavdj)
 
 ---
