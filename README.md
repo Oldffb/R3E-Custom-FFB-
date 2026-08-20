@@ -2,7 +2,7 @@
 
 **Custom force feedback for RaceRoom Racing Experience.** Free, for Windows.
 
-[![Download](https://img.shields.io/badge/download-v0.22.0-brightgreen?style=for-the-badge)](../../releases/latest)
+[![Download](https://img.shields.io/badge/download-v0.22.1-brightgreen?style=for-the-badge)](../../releases/latest)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/JGypJavdj)
 
 ---
@@ -41,6 +41,13 @@ Once you have made the change, confirm using the button below.
 | | |
 |---|---|
 | ❌ RaceRoom — Force Feedback ON (must be changed) | ✓ RaceRoom — Force Feedback OFF (correct) |
+
+**If Windows Firewall asks for permission:** the application opens **one port,
+5123/TCP, on loopback only** (`127.0.0.1` and `::1`) — the main window and the
+overlay load their interface from it, as a local web page. It never reaches the
+internet, and loopback traffic is not filtered, so denying the prompt should not
+stop it from working. If port 5123 is already taken, pass a different one as a
+command-line argument. See [What it touches](docs/what-it-touches.md).
 
 ---
 

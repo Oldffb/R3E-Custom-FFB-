@@ -1,7 +1,6 @@
 # R3E Custom FFB v0.22.0
 
-**New ABS vibration effect, updated car list, and groundwork for a future
-traction control effect.**
+**New ABS vibration effect and updated car list.**
 
 ---
 
@@ -45,26 +44,6 @@ languages.
 **Overlay: device name disappeared.** The device name was replaced by "No device"
 whenever the interface refreshed translations, even with the wheel connected and
 working.
-
-## Under the hood — traction control instrumentation
-
-The Logger now records everything the shared memory exposes about traction
-control: intervention state, configured level, setting index, and the **raw
-integer values** of both the ABS and TC fields.
-
-This was groundwork for a TC vibration effect, and it produced a clear answer:
-**RaceRoom documents a "currently active" state for traction control but never
-publishes it.** Verified with 6332 frames of full throttle at maximum TC level —
-the field never changed. The ABS field, with an identical specification, does
-report it correctly.
-
-The TC effect is therefore **postponed**, not abandoned. The remaining path is to
-compute wheel slip from the wheel speed data, which would give a continuous
-intensity rather than an on/off signal — better in principle, but it needs
-validation first.
-
-If you are curious about the data, the raw values are in every CSV the Logger
-writes from this version onwards.
 
 ---
 

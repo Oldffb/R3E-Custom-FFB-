@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.22.1
+
+**Added**
+- Settings, device shortcuts, terms acceptance and vehicle profiles moved to
+  `%LOCALAPPDATA%\R3E_FFB`, so they survive an update instead of being lost when
+  the new version is extracted elsewhere.
+- FFB Constants: the 41 fields and 9 groups of the catalogue are translated in all
+  five languages (field descriptions remain in Portuguese on purpose).
+- Error log file in `%LOCALAPPDATA%\R3E_FFB\logs\`, kept for seven days. Device
+  failures used to be swallowed silently.
+- A message explaining why force feedback could not start — another program
+  holding the wheel, device not connected, driver refusal — with what to do about
+  it, in all five languages.
+
+**Fixed**
+- Custom vehicle profiles were saved to one folder and read from another, so they
+  were never loaded or applied. Existing files are picked up automatically.
+- Vehicle profile categories were stored in the interface language, so the same
+  category produced different values on disk depending on the language.
+- Saving a new profile with an empty name failed silently.
+- The About screen loaded the Buy Me a Coffee button from a remote server; the
+  image is now bundled and the application no longer contacts the internet.
+- FFB Constants: Name and Profile columns were about twice as wide as their
+  content.
+- Live data sent to the interface and the overlay carried 190 fields of which 96
+  were drawn; the unused half is no longer sent (51% fewer bytes per message).
+
 ## v0.22.0
 
 **Added**
@@ -17,11 +44,6 @@
 - Profile warning was always shown in Portuguese, ignoring the selected language.
 - Overlay: the device name was replaced by "No device" whenever translations
   refreshed, even with the wheel connected.
-
-**Known limitation**
-- A traction control effect is postponed: RaceRoom documents a "currently active"
-  state for TC but never publishes it. Verified with 6332 frames of full throttle
-  at maximum TC level.
 
 ## v0.21.5
 

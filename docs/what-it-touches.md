@@ -21,11 +21,16 @@ Your settings and everything the app needs to remember between sessions:
 
 | Path | Contents |
 |---|---|
+| `settings.json` | Language, zoom, window position, device shortcuts, terms acceptance |
+| `terms-accepted.json` · `notice-ack.json` | Which version of the terms and of the first-run notice you accepted |
+| `configs\vehicle_profiles.json` | Vehicle types you created or edited |
+| `configs\car_definitions.json` | Which type each car uses |
 | `configs\cars\global.json` | Base settings, used when no profile matches |
 | `configs\cars\<carId>.json` | Per-car profile |
 | `configs\cars\cars\<carId>\<track>\…` | Per-car-and-track profile |
 | `configs\cars\ui-layout.json` | Panel positions in the main window |
 | `device.json` | Which wheel you selected |
+| `logs\r3e-ffb-<date>.log` | Diagnostic log — startup, device acquisition, failures. One file per day, last seven kept |
 | `WebView2\` · `WebView2_Overlay\` | Browser engine cache for the two windows |
 
 Deleting this folder resets the application to a fresh install. Nothing else
@@ -39,14 +44,14 @@ and nothing is ever sent anywhere.
 
 ### 3. Next to the executable
 
-| File | Written when |
-|---|---|
-| `appsettings.json` | Settings that apply before the interface loads — zoom, language, start-with-Windows |
-| `terms-accepted.json` | You accept the terms on first run |
-| `notice-ack.json` | You confirm the initial instructions |
+**Nothing.** Since v0.22.1 everything the application remembers lives in the folder
+above, so **extracting a new version over an old one — or into a fresh folder —
+keeps your settings, your shortcuts and your profiles**. The `appsettings.json`
+shipped next to the executable holds application configuration only, and is
+replaced by each update.
 
-If you extracted the application to a read-only location, these fall back to
-defaults rather than failing.
+If you are updating from v0.22.0 or earlier, the old files are **copied, not
+moved**: the originals stay where they were, so nothing is lost if you go back.
 
 ### 4. The Windows temporary folder — only during CSV replay
 
@@ -71,12 +76,48 @@ driver, nothing that needs administrator rights.
 
 ---
 
+## Network ports
+
+The application opens **one port**, and only on loopback:
+
+| | |
+|---|---|
+| Port | **5123** (TCP) — change with a command-line argument if it clashes |
+| Address | `127.0.0.1` and `::1` **only** — never `0.0.0.0` |
+| Purpose | serves the interface to the built-in browser window, and carries the live data to the main window and the overlay |
+| Reaches the internet | **no** |
+
+The interface you see is a web page, and the two windows (main and overlay) are
+browser views that load it from this local address. That is the only reason a
+port exists at all.
+
+### Why Windows may ask for permission
+
+Because a port is opened, **Windows may show the "Allow access" firewall prompt
+on first run**. It is worth knowing three things about it:
+
+- The application **never connects to the internet**. Nothing is uploaded, no
+  telemetry is sent, no update check is made.
+- Loopback traffic is **not filtered** by Windows Firewall, so denying the prompt
+  should not stop the application from working.
+- The prompt is **modal and takes focus**. If it appears while you are choosing
+  your wheel, it can interrupt that step — and without a device selected there is
+  no force feedback at all. If something seems wrong right after the first run,
+  check that your wheel is still selected under Settings.
+
+**The firewall cannot block your wheel.** Force feedback goes through DirectInput,
+which talks to the device driver and never touches the network. If you have no
+force feedback, the cause is elsewhere — see the troubleshooting notes below.
+
+---
+
 ## Files the application reads
 
 | Source | Access |
 |---|---|
 | RaceRoom shared memory (`$R3E`) | **read-only**, see below |
-| Its own `configs\` and `appsettings.json` | read/write |
+| Its own `%LOCALAPPDATA%\R3E_FFB` folder | read/write |
+| Its own `appsettings.json` | read only — application configuration |
 | Its own bundled resources (interface, car list, icon) | read, from inside the executable |
 
 That is the complete list. **No file inside the RaceRoom installation folder is
